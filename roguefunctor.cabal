@@ -74,5 +74,8 @@ library
     Rogue.Prelude
     Rogue.Geometry.V2
     Rogue.Events
+    Rogue.Colour
     Rogue.Window
     Rogue.Config
+    Rogue.Geometry.Rectangle
+    Rogue.Array2D.Unboxed
