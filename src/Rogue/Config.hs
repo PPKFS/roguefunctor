@@ -59,9 +59,9 @@ data WindowOptions = WindowOptions
 
 defaultWindowOptions :: WindowOptions
 defaultWindowOptions = WindowOptions
-  { size = Just (80, 25)
+  { size = Just (150, 50)
   , cellsize = Just Auto
-  , title = Just "BearLibTerminalExtras"
+  , title = Just "Hello Zurihac!!!"
   , icon = Nothing
   , resizeable = Just False
   , fullscreen = Just False

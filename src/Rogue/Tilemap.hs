@@ -5,7 +5,6 @@ import qualified Data.Vector.Unboxed as VU
 import qualified Rogue.Array2D.Boxed as A
 import Rogue.Prelude
 
-
 class Tilemap tilemap tilekind | tilemap -> tilekind where
   getTile :: tilemap -> V2 -> tilekind
   setTile :: tilemap -> tilekind -> V2 -> tilemap
@@ -29,8 +28,8 @@ class KeyedTilemap tilemap key tilekind | tilemap -> key, tilemap -> tilekind wh
   setTileKinds :: tilemap -> [(V2, key)] -> tilemap
   setTileKinds = foldl' (\tm' (v, k) -> setTileKind tm' k v)
   {-# MINIMAL getTileKind, setTileKind #-}
-
 {-}
+
 data Tiles tileIndex tilekind = Tiles
   { tileKinds :: IntMap tilekind
   , tileMap :: AU.Array2D tileIndex

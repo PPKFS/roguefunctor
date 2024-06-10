@@ -79,3 +79,4 @@ library
     Rogue.Config
     Rogue.Geometry.Rectangle
     Rogue.Array2D.Unboxed
+    Rogue.Array2D.Boxed
