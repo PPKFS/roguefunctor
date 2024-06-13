@@ -3,8 +3,7 @@ import Rogue.Geometry.V2
 import Rogue.Prelude
 import Rogue.Tilemap
 import qualified Rogue.Array2D.Boxed as A
-import qualified Data.Vector.Unboxed as VU
-import Rogue.Geometry.V2
+import qualified Data.Vector as V
 
 class VisibilityMap map where
   dimensions :: map -> V2
@@ -18,7 +17,7 @@ instance TileVisibility tile => VisibilityMap (A.Array2D tile) where
   positionBlocksVisibility a = view visibility . getTile a
 
 data Viewshed = Viewshed
-  { visibleTiles :: VU.Vector V2
+  { visibleTiles :: V.Vector V2
   , range :: Int
   }
 

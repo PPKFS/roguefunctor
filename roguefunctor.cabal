@@ -82,3 +82,5 @@ library
     Rogue.Array2D.Boxed
     Rogue.Tilemap
     Rogue.FieldOfView.Visibility
+    Rogue.FieldOfView.Raycasting
+    Rogue.Geometry.Line
