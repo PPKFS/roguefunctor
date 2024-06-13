@@ -50,7 +50,12 @@ Mostly this will follow the extended structure of the `bracket` tutorial in Rust
 
 ## Structure
 
-- Part 0: Motivation, project setup, design decisions (why no ECS, a very brief introduction to `optics` and `effectful`)
-- Part 1: Drawing, map, moving around
+- Part 0 (this one): Motivation, project setup, design decisions (why no ECS, a very brief introduction to `optics` and `effectful`)
+- Part 1: Drawing a random map, moving around
 - Part 2: Better map generation (rooms)
-
+- Part 3: Field of view
+- Part 4: Monsters, AI
+- Part 5: Combat
+- Part 6: UI
+- Part 7: Items and inventory
+- ???

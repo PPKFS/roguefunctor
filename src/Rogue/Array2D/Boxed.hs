@@ -25,3 +25,15 @@ coordToIndex w (V2 x y) = y*w + x
 
 toVector :: Array2D a -> V.Vector a
 toVector (Array2D (a, _)) = a
+
+traverseArray :: Monad m => Array2D a -> (a -> m b) -> m (V.Vector b)
+traverseArray (Array2D (arr, _)) = V.forM arr
+
+traverseArray_ :: Monad m => Array2D a -> (a -> m b) -> m ()
+traverseArray_ (Array2D (arr, _)) = V.forM_ arr
+
+traverseArrayWithCoord :: Monad m => Array2D a -> (V2 -> a -> m b) -> m (V.Vector b)
+traverseArrayWithCoord (Array2D (arr, V2 w _)) f = V.iforM arr $ \i v -> f (indexToCoord w i) v
+
+traverseArrayWithCoord_ :: Monad m => Array2D a -> (V2 -> a -> m b) -> m ()
+traverseArrayWithCoord_ (Array2D (arr, V2 w _)) f = V.iforM_ arr $ \i v -> f (indexToCoord w i) v

@@ -13,6 +13,7 @@ import qualified Data.Text.Lazy.Encoding as LT
 import qualified Data.Text.Lazy as TL
 import qualified Data.List as L
 import qualified Data.Text as T
+import Rogue.Geometry.V2
 
 class BearLibConfigString s where
   toConfigString :: s -> LT.Builder
@@ -22,6 +23,9 @@ data Cellsize = Auto | Size (Int, Int)
 
 instance BearLibConfigString (Int, Int) where
   toConfigString (x, y) = LT.fromString (show x) <> LT.singleton 'x' <> LT.fromString (show y)
+
+instance BearLibConfigString V2 where
+  toConfigString (WithV2 x y) = LT.fromString (show x) <> LT.singleton 'x' <> LT.fromString (show y)
 
 instance BearLibConfigString Cellsize where
   toConfigString Auto = LT.fromText "auto"
@@ -49,7 +53,7 @@ terminalSet :: MonadIO m => BearLibConfigString c => c -> m Bool
 terminalSet = terminalSetText . TL.toStrict . LT.toLazyText . toConfigString
 
 data WindowOptions = WindowOptions
-  { size :: Maybe (Int, Int)
+  { size :: Maybe V2
   , cellsize :: Maybe Cellsize
   , title :: Maybe Text
   , icon :: Maybe FilePath
@@ -59,7 +63,7 @@ data WindowOptions = WindowOptions
 
 defaultWindowOptions :: WindowOptions
 defaultWindowOptions = WindowOptions
-  { size = Just (150, 50)
+  { size = Just $ V2 150 50
   , cellsize = Just Auto
   , title = Just "Hello Zurihac!!!"
   , icon = Nothing
