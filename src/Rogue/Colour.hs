@@ -6,6 +6,8 @@ module Rogue.Colour
   , terminalBkColour
   , terminalColor
   , terminalColour
+  , toGreyscale
+  , desaturate
 
   ) where
 
@@ -44,3 +46,22 @@ terminalBkColour = terminalBkColorUInt . CUInt . toWord32
 
 terminalBkColor :: MonadIO m => Color -> m ()
 terminalBkColor = terminalColour
+
+toGreyscale :: Color -> Color
+toGreyscale (Colour c) =
+  let b :: Float = fromIntegral (c .&. 0xFF)
+      g :: Float = fromIntegral (c `shiftR` 8 .&. 0xFF)
+      r :: Float = fromIntegral (c `shiftR` 16 .&. 0xFF)
+      a = (c `shiftR` 24 .&. 0xFF)
+      grey = round (r*0.2126) + round (g*0.7152) + round (b * 0.0722)
+  in
+    fromARGB (fromIntegral a) grey grey grey
+
+desaturate :: Color -> Color
+desaturate (Colour c) =
+  let b = fromIntegral (c .&. 0xFF)
+      g = fromIntegral (c `shiftR` 8 .&. 0xFF)
+      r = fromIntegral (c `shiftR` 16 .&. 0xFF)
+      a = (c `shiftR` 24 .&. 0xFF)
+  in
+    fromARGB (fromIntegral a) (r `div` 2) (g `div` 2) (b `div` 2)

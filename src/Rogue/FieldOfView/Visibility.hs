@@ -3,7 +3,10 @@ import Rogue.Geometry.V2
 import Rogue.Prelude
 import Rogue.Tilemap
 import qualified Rogue.Array2D.Boxed as A
-import qualified Data.Vector as V
+import Rogue.Property.TH
+import Rogue.Property.Has
+import Rogue.ObjectQuery
+import qualified Data.Set as S
 
 class VisibilityMap map where
   dimensions :: map -> V2
@@ -17,9 +20,11 @@ instance TileVisibility tile => VisibilityMap (A.Array2D tile) where
   positionBlocksVisibility a = view visibility . getTile a
 
 data Viewshed = Viewshed
-  { visibleTiles :: V.Vector V2
+  { visibleTiles :: S.Set V2
   , range :: Int
-  }
+  } deriving stock (Eq, Ord, Show, Generic)
+
+makeSpecifics ''Viewshed
 
 data OctantPosition = NNE | NE | SE | SSE | SSW | SW | NW | NNW
 

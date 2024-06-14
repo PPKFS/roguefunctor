@@ -29,6 +29,8 @@ common common-options
     text-display >= 0.0.5 && < 1.0,
     breadcrumbs >= 1.0.0.0 && <= 10.0.0.0,
     bearlibterminal,
+    haskell-src-exts,
+    haskell-src-meta,
     optics,
     optics-core >= 0.4.0.0,
     unliftio,
@@ -84,3 +86,6 @@ library
     Rogue.FieldOfView.Visibility
     Rogue.FieldOfView.Raycasting
     Rogue.Geometry.Line
+    Rogue.Property.Has
+    Rogue.Property.TH
+    Rogue.ObjectQuery

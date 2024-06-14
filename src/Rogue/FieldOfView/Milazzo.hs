@@ -1,5 +1,5 @@
 module Rogue.FieldOfView.Milazzo where
-{- INCOMPLETE
+{- INCOMPLETEs
 import Rogue.Prelude
 import Rogue.Geometry.V2
 import Rogue.FieldOfView.Visibility
