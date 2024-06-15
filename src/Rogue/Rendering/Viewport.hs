@@ -1,10 +1,11 @@
+{-# LANGUAGE RecordWildCards #-}
 module Rogue.Rendering.Viewport where
 import Rogue.Geometry.Rectangle
 import Rogue.Prelude hiding (Reader, runReader, ask)
 import Effectful.Reader.Static
 import Rogue.Colour
 import Rogue.Geometry.V2
-import qualified Data.Set as S
+import Data.Ix (Ix(inRange))
 
 type Layer = Word8
 
@@ -17,7 +18,6 @@ bgLayer = 0
 
 data Viewport layer = Viewport
   { viewport :: Rectangle
-  , dirtyLayers :: S.Set layer
   , backgroundLayer :: Maybe (layer, Colour)
   }
 
@@ -34,12 +34,15 @@ withViewport ::
 withViewport = runReader
 
 clearViewport ::
+  forall l es.
   IOE :> es
   => AsLayer l
   => Eq l
+  => Enum l
+  => Bounded l
   => Viewport l
   -> Eff es ()
-clearViewport v = forM_ (dirtyLayers v) $ \dl -> do
+clearViewport v = forM_ (universe @l) $ \dl -> do
   terminalLayer' (toLayer dl)
   -- if this is the global background layer
   when (toLayer dl == bgLayer) $
@@ -60,6 +63,14 @@ withViewportTransform p f = do
   r <- ask
   withV2 (topLeft (viewport r) + p) f
 
+whenInViewport ::
+  MonadIO m
+  => Viewport l
+  -> V2
+  -> m ()
+  -> m ()
+whenInViewport v p f = if (inRange (V2 0 0, V2 1 1 + rectangleDimensions (viewport v)) p) then f else print ("refusing to do things because " <> show p)
+
 viewportDrawTile ::
   IOE :> es
   => AsLayer l
@@ -74,3 +85,57 @@ viewportDrawTile p mbL fg glyph = do
     terminalLayer' . toLayer
   terminalColour fg
   void $ withViewportTransform p (\x y -> terminalPrintText x y (one glyph))
+
+data BorderTileSet = BTS
+  { tl :: Char
+  , tr :: Char
+  , bl :: Char
+  , br :: Char
+  , l :: Char
+  , r :: Char
+  , t :: Char
+  , b :: Char
+  }
+
+unicodeBorders :: BorderTileSet
+unicodeBorders = BTS
+  { tl = '╔'
+  , tr = '╗'
+  , bl = '╚'
+  , br = '╝'
+  , l = '║'
+  , r = '║'
+  , t = '═'
+  , b = '═'
+  }
+
+borderViewport ::
+  IOE :> es
+  => Reader (Viewport l) :> es
+  => Colour
+  -> BorderTileSet
+  -> Eff es ()
+borderViewport c BTS{..} = do
+  (Viewport rect _) <- ask
+  let f x y glyph = terminalPrintText x y (one glyph)
+  terminalColour c
+  withV2 (topLeft rect) f tl
+  withV2 (bottomRight rect - V2 1 1) f br
+  withV2 (topRight rect - V2 1 0) f tr
+  withV2 (bottomLeft rect - V2 0 1) f bl
+  forM_ [view _1 (topLeft rect) + 1 .. view _1 (topRight rect) - 2 ] $ \x -> do
+    f x (rect ^. #topLeft % _2) t
+    f x (rect ^. #bottomRight % _2 - 1) b
+  forM_ [view _2 (topLeft rect) + 1 .. view _2 (bottomLeft rect) - 2 ] $ \y -> do
+    f (rect ^. #topLeft % _1) y l
+    f (rect ^. #bottomRight % _1 - 1) y r
+
+data SomeViewport es where
+  SomeViewport :: (IOE :> es, AsLayer l, Eq l, Enum l, Bounded l) => Viewport l -> Eff (Reader (Viewport l) : es) () -> SomeViewport es
+
+renderViewport ::
+  SomeViewport es
+  -> Eff es ()
+renderViewport (SomeViewport v f) = withViewport v $ do
+  clearViewport v
+  f

@@ -33,6 +33,11 @@ centre ::
   -> V2
 centre (Rectangle (V2 x1 y1) (V2 x2 y2)) = V2 ((x1+x2) `div` 2) ((y1+y2) `div` 2)
 
+bottomEdge ::
+  Rectangle
+  -> Int
+bottomEdge = view _2 . bottomRight
+
 data ScanDirection = Horizontal | Vertical
   deriving stock (Eq, Ord, Show, Read, Generic, Enum, Bounded)
 
@@ -46,3 +51,20 @@ rectanglePoints Horizontal r = do
 rectanglePoints Vertical r = do
   y <- [(r ^. #topLeft % _2) .. (r ^. #bottomRight % _2)]
   (`V2` y) <$> [(r ^. #topLeft % _1) .. (r ^. #bottomRight % _1)]
+
+rectangleEdges ::
+  Rectangle
+  -> [V2]
+rectangleEdges r = do
+  x <- [(r ^. #topLeft % _1) .. (r ^. #bottomRight % _1)]
+  V2 x <$> [r ^. #topLeft % _2, r ^. #bottomRight % _2]
+
+bottomLeft ::
+  Rectangle
+  -> V2
+bottomLeft r = V2 (r ^. #topLeft % _1) (r ^. #bottomRight % _2)
+
+topRight ::
+  Rectangle
+  -> V2
+topRight r = V2 (r ^. #bottomRight % _1) (r ^. #topLeft % _2)

@@ -1,4 +1,6 @@
-# Part 0 - Setting up
+# Part 0 - Intro
+
+This is a tutorial for making a roguelike in Haskell using the `roguefunctor` library slash toolkit slash framework, which uses the `bearlibterminal` graphics library to render things.
 
 # Motivation and introduction
 
@@ -36,7 +38,7 @@ And it'd be *very useful* to know about:
 - Basic roguelike concepts like generating tile-based dungeons and an obsession of rendering things in ASCII characters, but that's why you're here - right?
 
 Notably this won't include:
-- ECS systems (Entity/Component/System) - I don't like them, and I especially don't like them for roguelikes, and I especially especially don't like them for this kind of non-realtime Haskell gamedev.
+- ECS systems (Entity/Component/System) - I don't like them, and I especially don't like them for roguelikes, and I especially especially don't like them for this kind of non-realtime Haskell gamedev. I do still go for a compositional approach rather than attempting to jam some inheritance into Haskell though.
 - Doing things the simple way. Yes, it would probably be easier - for example - to not use `effectful` and just do everything in `StateT World IO`. But...I don't want to do that. I don't like using `mtl`. I want to use `effectful` and `optics` and a bunch of language extensions. I certainly will do my best to avoid unnecessarily complexity, but finishing a tutorial series with a monolithic gamestate object that is impossible to work on except by duct-taping more bells and whistles on top always annoyed me.
 
 
@@ -47,13 +49,18 @@ This is a work heavily, heavily standing on the shoulders of giants. The structu
 - rogueliketutorials
 - the bracket-lib/rltk tutorial (especially this last one).
 
-Mostly this will follow the extended structure of the `bracket` tutorial in Rust because it has a whole bunch of extra content added on to the end of the first two. Whereas that tutorial leans heavily on leveraging an ECS, I'll instead be advocating for good ol' composition with some nice lens and phantom type solutions to keep type safety. So that'll be a change.
+Mostly this will follow the extended structure of the `bracket` tutorial in Rust because it has a whole bunch of extra content added on to the end of the first two. Whereas that tutorial leans heavily on leveraging an ECS system, I'll instead be advocating for good ol' composition with some nice lens and phantom type solutions to keep type safety. So that'll be a change.
 
--
-## Structure
+# Example screenshots
+
+I'll update this as I go.
+
+![](screenshot1.png)
+
+# Structure
 
 - Part 0 (this one): Motivation, design decisions (why no ECS, a very brief introduction to `optics` and `effectful`
-- Part 1: `cabal init`, Drawing an `@`, drawing a random map, moving around
+- Part 1: Project setup, Drawing an `@`, drawing a random map, moving around
 - Part 2: Better map generation (rooms)
 - Part 3: Field of view
 - Part 4: Monsters, AI
@@ -67,6 +74,14 @@ Mostly this will follow the extended structure of the `bracket` tutorial in Rust
 ## Part 1 where the actual project starts can be found here.
 
 Otherwise, read on for some more mulling over implementation details and a brief explanation of `optics` and `effectful`.
+
+## Do I need to use `optics`/`effectful`?
+
+In short, no. The ideas will carry across just fine. `roguefunctor` *does* try to abstract a lot of things but some things (such as `withViewport`) do work in `Eff es a` rather than `MonadIO m => m a` like the `bearlibterminal` functions do.
+I think you could replace all the effectful things with their `mtl` equivalent, or your effect system of choice (`fused-effects`, `cleff`, `polysemy`, `bluefin`, and so on) without much effort. I think the `optics` dependency might be a bit more annoying. The `OverloadedLabels` I use a lot of...slightly more work but doable with `lens`/`microlens` or
+you *might* be able to do without them.
+
+I think unfortunately the `HasSpecifics` machinery would be a huge PITA to do without an optics library of some kind. I don't know what else to suggest for that.
 
 ---
 
@@ -173,7 +188,7 @@ doThings = do
   ...
 ```
 
-And using `effectful` this is almost the same. Rather than some monad `m`, we work in the `Eff es` monad. Rather than constraints over the monad, we parameterise `Eff` with `es :: [Effect]` - the list of effects we want available.
+And using `effectful` this is almost the same. Rather than some monad `m`, we work in the `Eff es` monad. Rather than constraints over the monad, we parameterise `Eff` with `es :: [Effect]` - the **type-level** list of effects we want available. Order doesn't matter.
 
 ```haskell
 doThings :: (IOE :> es, Reader Environment :> es, State WorldState :> es, SomethingElse :> es) => Eff es a
