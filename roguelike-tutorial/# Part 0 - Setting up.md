@@ -36,9 +36,8 @@ And it'd be *very useful* to know about:
 - Basic roguelike concepts like generating tile-based dungeons and an obsession of rendering things in ASCII characters, but that's why you're here - right?
 
 Notably this won't include:
-- ECS (Entity-component systems) - I don't like them, and I especially don't like them for roguelikes, and I especially especially don't like them for this kind of non-realtime Haskell gamedev.
+- ECS systems (Entity/Component/System) - I don't like them, and I especially don't like them for roguelikes, and I especially especially don't like them for this kind of non-realtime Haskell gamedev.
 - Doing things the simple way. Yes, it would probably be easier - for example - to not use `effectful` and just do everything in `StateT World IO`. But...I don't want to do that. I don't like using `mtl`. I want to use `effectful` and `optics` and a bunch of language extensions. I certainly will do my best to avoid unnecessarily complexity, but finishing a tutorial series with a monolithic gamestate object that is impossible to work on except by duct-taping more bells and whistles on top always annoyed me.
-
 
 
 ## Inspiration
@@ -70,104 +69,8 @@ Mostly this will follow the extended structure of the `bracket` tutorial in Rust
 Otherwise, read on for some more mulling over implementation details and a brief explanation of `optics` and `effectful`.
 
 ---
----
----
----
----
 
-# Why no ECS?
-
-tl;dr: I don't think it's particularly necessary in roguelikes, or quite so much in Haskell, or definitely in Haskell roguelikes.
-
-I think you could probably ignore this section happily and just continue to the next section of the tutorial after that tl;dr. But if you would like to read a ramble, read on.
-
-There's a great video on the topic here:
-
-The long answer:
-  So first, let's all get on the same page over what an entity-component system *is*:
-
-- *Entities*, which are thin wrappers around some sort of ID. This is as collated as an object gets.
-
-- *Components*, which are a collection of data associated with a given *entity*, usually as a bag. An Entity may (and probably will) have many components. Examples would be a controllable component, a position, a renderable representation, and so on.
-
-- *Systems* are the logic that act on components. They take the form of iterating over each component of a certain type, or a collection of types, and perform the logic. Examples would be a system that accepts input for each controllable component, or a system that iterates entities with **both** position and renderable components and renders them at a location.
-
-This has many advantages. Each system is compartmentalised; it does one thing and one thing only. It's clear that every entity the AI system touches would have some reason to be controlled by the AI system. There is no mess of OOP multiple inheritance possible, because everything is the loosest possible form of composition - and you can compose dynamically at runtime (adding or removing components on the fly).
-
-There's a great ECS library for Haskell, too - Apecs.
-
-So why am I not using one? ECS systems move the data model from having **objects** to having **bags of components**. I don't like thinking of objects as loose bags of components. Objects are not loose bags of (un)related components.
-
-Let's take some goblins. Each of these goblins consist of a renderable (a red `g` for example), some combat stats (HP, attack, etc), an inventory, an AI behaviour, and some spatial location in the dungeon. In an ECS, there is no "goblin". There are 10 goblin IDs, there are 10 combat components (each associated with an entity), 10 position components, etc. - and you can probably gather all the components for a given ID to get a bag of goblin components.
-
-But you don't have the *guarantees* that every goblin will have these things! What if a goblin doesn't have a renderable component? You just have to assume that the bag-of-components contains a renderable. You never need to think about the renderable part of a specific goblin because your interaction with that component will almost always be as part of rendering everything.
-
-Let's say you now want to make a goblin archer. In an OOP approach you'd do something with inheritance, and you may get the dreaded diagonal inheritance problem if you try to inherit from goblin AND archer..and ECS solves this fairly easily, because you can just add the union of components between the two things. But now we're at the stage where we have *even more various components floating around to keep track of*! And we need stores for each of these components, and so on.
-
-Let's consider my Haskell solution, where objects are simply an `Object` type. We have
-
-```haskell
-
-data Object = Object
-  { name :: Text
-  , objectId :: Entity
-  , position :: Position
-  , renderable :: Renderable
-  , ...
-  , objectSpecifics :: ObjectSpecifics
-  }
-
-data ObjectSpecifics =
-  GoblinSpecifics GoblinData
-  | GoblinArcherSpecifics GoblinArcherData
-  -- we don't need these because we only need a `Specifics` for a concrete object!
-  -- | MonsterSpecifics MonsterData
-  -- | ArcherSpecifics ArcherData
-
-data GoblinData = GD
-  { specificAiKind :: SomeAIInfo
-  , combat :: CombatStats
-  , ...
-  }
-
-data GoblinArcherData = GAD
-  { goblinInfo :: GoblinData
-  , archerInfo :: ArcherData
-  }
-
-...and so on
-```
-
-Simple, nice, clean Haskell. Every object has some generic properties that every object has (like a renderable) and then our specific instances are just a big sum type. Easy.
-
-"Ah, but how can I iterate over every AI-controlled object in my system?" Well, we have lenses for that! With a little magic, we can write fairly simple instances that give us functions of the form `getAIMaybe :: Object -> Maybe SomeAIInfo` (no matter where the `SomeAIInfo` is placed in the composition), and `setAI :: Object -> SomeAIInfo -> Object`. This is no more than doing, paraphrased:
-
-```haskell
-
--- this is an AffineTraversal, i.e. a traversal with 0-1 targets, or a lens plus a prism, or a prism that doesn't have the reverse condition
-instance HasSpecifics ObjectSpecifics SomeAIInfo where
-  propertyAT = (_GoblinSpecifics % #specificAiKind) `thenATraverse` (_GoblinArcherSpecifics % #goblinInfo %specificAiKind)
-```
-
-Okay, it's a little boilerplate but it's not so bad!
-
-"Ah, but what about if we want to have type safety? What if I *know* this thing is a goblin and I want to avoid the `Maybe`ness?"
-
-We can introduce some witnesses for this!
-
-```haskell
-
--- given the existence of a goblin component for this entity, and this entity...
-
-instance TaggedEntity GoblinData GoblinEntity
--- giving us tagEntity :: GoblinData -> Entity -> GoblinEntity
--- and also getGoblinData :: GoblinEntity -> Eff es GoblinData
-```
-If we've tagged an Entity with proof it has some property, we can now look that property up safely. It also means we can safely store references in a type-safe way. Perhaps a goblin has parents, which can be fields of `GoblinEntity` rather than just `Entity`. We can no longer set a goblin's parents to be a potion of health...
-
-If you've read this far, I hope this was marginally understandable! Much of it could *probably* be done in an ECS. Much of it probably *should* be done in an ECS. But because **I want to write logic on objects rather than on components**, I like this system of simple composition plus some clever lenses and type witnesses.
-
-# ECS ramble over, the world's quickest introduction to `optics` and `effectful`
+# Brief library introductions
 
 ## `optics`
 
@@ -288,3 +191,100 @@ And that's it. It's very similar to `mtl`. Rather than talking of monad transfor
 - thread-local and shared versions of `State`
 - writing your own effects (e.g. nicer, domain-specific versions of state/reader) is simple. No messing about with writing endless amounts of lifting instances or newtype wrappers.
 
+
+# Why no ECS?
+
+tl;dr: I don't think it's particularly necessary in roguelikes, or quite so much in Haskell, or definitely in Haskell roguelikes.
+
+I think you could probably ignore this section happily and just continue to the next section of the tutorial after that tl;dr. But if you would like to read a ramble, read on.
+
+There's a great video on the topic here:
+
+The long answer:
+  So first, let's all get on the same page over what an entity-component system *is*:
+
+- *Entities*, which are thin wrappers around some sort of ID. This is as collated as an object gets.
+
+- *Components*, which are a collection of data associated with a given *entity*, usually as a bag. An Entity may (and probably will) have many components. Examples would be a controllable component, a position, a renderable representation, and so on.
+
+- *Systems* are the logic that act on components. They take the form of iterating over each component of a certain type, or a collection of types, and perform the logic. Examples would be a system that accepts input for each controllable component, or a system that iterates entities with **both** position and renderable components and renders them at a location.
+
+This has many advantages. Each system is compartmentalised; it does one thing and one thing only. It's clear that every entity the AI system touches would have some reason to be controlled by the AI system. There is no mess of OOP multiple inheritance possible, because everything is the loosest possible form of composition - and you can compose dynamically at runtime (adding or removing components on the fly).
+
+There's a great ECS library for Haskell, too - Apecs.
+
+So why am I not using one? ECS systems move the data model from having **objects** to having **bags of components**. I don't like thinking of objects as loose bags of components. Objects are not loose bags of (un)related components.
+
+Let's take some goblins. Each of these goblins consist of a renderable (a red `g` for example), some combat stats (HP, attack, etc), an inventory, an AI behaviour, and some spatial location in the dungeon. In an ECS, there is no "goblin". There are 10 goblin IDs, there are 10 combat components (each associated with an entity), 10 position components, etc. - and you can probably gather all the components for a given ID to get a bag of goblin components.
+
+But you don't have the *guarantees* that every goblin will have these things! What if a goblin doesn't have a renderable component? You just have to assume that the bag-of-components contains a renderable. You never need to think about the renderable part of a specific goblin because your interaction with that component will almost always be as part of rendering everything.
+
+Let's say you now want to make a goblin archer. In an OOP approach you'd do something with inheritance, and you may get the dreaded diagonal inheritance problem if you try to inherit from goblin AND archer..and ECS solves this fairly easily, because you can just add the union of components between the two things. But now we're at the stage where we have *even more various components floating around to keep track of*! And we need stores for each of these components, and so on.
+
+Let's consider my Haskell solution, where objects are simply an `Object` type. We have
+
+```haskell
+
+data Object = Object
+  { name :: Text
+  , objectId :: Entity
+  , position :: Position
+  , renderable :: Renderable
+  , ...
+  , objectSpecifics :: ObjectSpecifics
+  }
+
+data ObjectSpecifics =
+  GoblinSpecifics GoblinData
+  | GoblinArcherSpecifics GoblinArcherData
+  -- we don't need these because we only need a `Specifics` for a concrete object!
+  -- | MonsterSpecifics MonsterData
+  -- | ArcherSpecifics ArcherData
+
+data GoblinData = GD
+  { specificAiKind :: SomeAIInfo
+  , combat :: CombatStats
+  , ...
+  }
+
+data GoblinArcherData = GAD
+  { goblinInfo :: GoblinData
+  , archerInfo :: ArcherData
+  }
+
+...and so on
+```
+
+Simple, nice, clean Haskell. Every object has some generic properties that every object has (like a renderable) and then our specific instances are just a big sum type. Easy.
+
+"Ah, but how can I iterate over every AI-controlled object in my system?" Well, we have lenses for that! With a little magic, we can write fairly simple instances that give us functions of the form `getAIMaybe :: Object -> Maybe SomeAIInfo` (no matter where the `SomeAIInfo` is placed in the composition), and `setAI :: Object -> SomeAIInfo -> Object`. This is no more than doing, paraphrased:
+
+```haskell
+
+-- this is an AffineTraversal, i.e. a traversal with 0-1 targets, or a lens plus a prism, or a prism that doesn't have the reverse condition
+instance HasSpecifics ObjectSpecifics SomeAIInfo where
+  propertyAT = (_GoblinSpecifics % #specificAiKind) `thenATraverse` (_GoblinArcherSpecifics % #goblinInfo %specificAiKind)
+```
+
+Okay, it's a little boilerplate but it's not so bad!
+
+"Ah, but what about if we want to have type safety? What if I *know* this thing is a goblin and I want to avoid the `Maybe`ness?"
+
+We can introduce some witnesses for this!
+
+```haskell
+
+-- given the existence of a goblin component for this entity, and this entity...
+
+instance TaggedEntity GoblinData GoblinEntity
+-- giving us tagEntity :: GoblinData -> Entity -> GoblinEntity
+-- and also getGoblinData :: GoblinEntity -> Eff es GoblinData
+```
+If we've tagged an Entity with proof it has some property, we can now look that property up safely. It also means we can safely store references in a type-safe way. Perhaps a goblin has parents, which can be fields of `GoblinEntity` rather than just `Entity`. We can no longer set a goblin's parents to be a potion of health...
+
+If you've read this far, I hope this was marginally understandable! Much of it could *probably* be done in an ECS. Much of it probably *should* be done in an ECS. But because **I want to write logic on objects rather than on components**, I like this system of simple composition plus some clever lenses and type witnesses.
+
+
+## Thanks!
+
+Okay, that's a probably too long introduction done. Onto Part 1, which is an actual tutorial.
