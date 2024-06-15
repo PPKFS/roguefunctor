@@ -89,3 +89,4 @@ library
     Rogue.Property.Has
     Rogue.Property.TH
     Rogue.ObjectQuery
+    Rogue.Rendering.Viewport
