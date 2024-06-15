@@ -39,11 +39,7 @@ Notably this won't include:
 - ECS (Entity-component systems) - I don't like them, and I especially don't like them for roguelikes, and I especially especially don't like them for this kind of non-realtime Haskell gamedev.
 - Doing things the simple way. Yes, it would probably be easier - for example - to not use `effectful` and just do everything in `StateT World IO`. But...I don't want to do that. I don't like using `mtl`. I want to use `effectful` and `optics` and a bunch of language extensions. I certainly will do my best to avoid unnecessarily complexity, but finishing a tutorial series with a monolithic gamestate object that is impossible to work on except by duct-taping more bells and whistles on top always annoyed me.
 
-# I want to get to the actual tutorial already!
 
-## Part 1 where the actual project starts can be found here.
-
-Otherwise, read on for some more mulling over implementation details and a brief explanation of `optics` and `effectful`.
 
 ## Inspiration
 
@@ -54,10 +50,11 @@ This is a work heavily, heavily standing on the shoulders of giants. The structu
 
 Mostly this will follow the extended structure of the `bracket` tutorial in Rust because it has a whole bunch of extra content added on to the end of the first two. Whereas that tutorial leans heavily on leveraging an ECS, I'll instead be advocating for good ol' composition with some nice lens and phantom type solutions to keep type safety. So that'll be a change.
 
+-
 ## Structure
 
-- Part 0 (this one): Motivation, design decisions (why no ECS, a very brief introduction to `optics` and `effectful`), project setup, drawing an `@`
-- Part 1: Drawing a random map, moving around
+- Part 0 (this one): Motivation, design decisions (why no ECS, a very brief introduction to `optics` and `effectful`
+- Part 1: `cabal init`, Drawing an `@`, drawing a random map, moving around
 - Part 2: Better map generation (rooms)
 - Part 3: Field of view
 - Part 4: Monsters, AI
@@ -65,6 +62,18 @@ Mostly this will follow the extended structure of the `bracket` tutorial in Rust
 - Part 6: UI
 - Part 7: Items and inventory
 - ???
+
+# I want to get to the actual tutorial already!
+
+## Part 1 where the actual project starts can be found here.
+
+Otherwise, read on for some more mulling over implementation details and a brief explanation of `optics` and `effectful`.
+
+---
+---
+---
+---
+---
 
 # Why no ECS?
 
