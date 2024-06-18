@@ -10,8 +10,9 @@ module Rogue.Geometry.V2
   ) where
 
 import Data.MonoTraversable
-import Rogue.Prelude
+import Relude
 import GHC.Ix (Ix(..))
+import Optics
 
 data V2 = V2 {-# UNPACK #-} !Int {-# UNPACK #-} !Int
   deriving stock (Eq, Ord, Show, Read, Generic)

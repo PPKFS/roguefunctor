@@ -1,6 +1,5 @@
 module Rogue.Array2D.Boxed where
 
-import Rogue.Geometry.V2 ( V2(..) )
 import qualified Data.Vector as V
 import Rogue.Prelude
 

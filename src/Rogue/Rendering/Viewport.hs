@@ -4,7 +4,6 @@ import Rogue.Geometry.Rectangle
 import Rogue.Prelude hiding (Reader, runReader, ask)
 import Effectful.Reader.Static
 import Rogue.Colour
-import Rogue.Geometry.V2
 import Data.Ix (Ix(inRange))
 
 type Layer = Word8
@@ -69,7 +68,7 @@ whenInViewport ::
   -> V2
   -> m ()
   -> m ()
-whenInViewport v p f = if (inRange (V2 0 0, V2 1 1 + rectangleDimensions (viewport v)) p) then f else print ("refusing to do things because " <> show p)
+whenInViewport v p = when (inRange (V2 0 0, V2 1 1 + rectangleDimensions (viewport v)) p)
 
 viewportDrawTile ::
   IOE :> es

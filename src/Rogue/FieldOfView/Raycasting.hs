@@ -1,7 +1,6 @@
 module Rogue.FieldOfView.Raycasting where
 
 import Rogue.Prelude
-import Rogue.Geometry.V2
 import qualified Data.Set as S
 import Rogue.Geometry.Line
 import Rogue.FieldOfView.Visibility

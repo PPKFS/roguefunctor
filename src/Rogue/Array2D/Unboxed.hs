@@ -1,6 +1,4 @@
 module Rogue.Array2D.Unboxed where
-
-import Rogue.Geometry.V2 ( V2(..) )
 import qualified Data.Vector.Unboxed as V
 import Rogue.Prelude
 

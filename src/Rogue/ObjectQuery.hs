@@ -22,6 +22,14 @@ data ObjectQuery o :: Effect where
 
 makeEffect ''ObjectQuery
 
+addObject ::
+  ObjectQuery obj :> es
+  => (Id obj -> obj)
+  -> Eff es ()
+addObject mkO = do
+  e <- generateEntity
+  setObject (mkO e)
+
 modifyObject ::
   ObjectQuery obj :> es
   => Id obj

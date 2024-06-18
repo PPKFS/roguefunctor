@@ -60,7 +60,7 @@ runLoop = do
   terminalClear
   terminalColour (fromRGB 255 128 255)
   playerPos <- gets playerPosition
-  withV2 playerPos terminalPrintText "@"
+  void $ withV2 playerPos terminalPrintText "@"
   terminalRefresh
   void $ handleEvents Blocking $ \case
     WindowEvent WindowClose -> modify (#pendingQuit .~ True)

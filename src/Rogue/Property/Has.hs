@@ -2,6 +2,7 @@
 module Rogue.Property.Has (
   -- * Has
     MayHaveProperty(..)
+  , thenATraverse
   ) where
 
 import Rogue.Prelude

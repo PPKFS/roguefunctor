@@ -13,7 +13,6 @@ import qualified Data.Text.Lazy.Encoding as LT
 import qualified Data.Text.Lazy as TL
 import qualified Data.List as L
 import qualified Data.Text as T
-import Rogue.Geometry.V2
 
 class BearLibConfigString s where
   toConfigString :: s -> LT.Builder
