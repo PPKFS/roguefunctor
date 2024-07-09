@@ -27,7 +27,6 @@ common common-options
     effectful-th >= 1.0.0 && < 2.1,
     text >= 2.0.2 && < 3.1,
     text-display >= 0.0.5 && < 1.0,
-    breadcrumbs >= 1.0.0.0 && <= 10.0.0.0,
     bearlibterminal,
     haskell-src-exts,
     haskell-src-meta,
