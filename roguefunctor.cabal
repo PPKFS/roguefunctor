@@ -35,6 +35,7 @@ common common-options
     unliftio,
     enummapset,
     mono-traversable,
+    exceptions,
     vector,
     relude,
     random
