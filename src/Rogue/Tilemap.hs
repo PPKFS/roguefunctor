@@ -28,6 +28,17 @@ class KeyedTilemap tilemap key tilekind | tilemap -> key, tilemap -> tilekind wh
   setTileKinds :: tilemap -> [(V2, key)] -> tilemap
   setTileKinds = foldl' (\tm' (v, k) -> setTileKind tm' k v)
   {-# MINIMAL getTileKind, setTileKind #-}
+
+class WalkabilityMap map where
+  dimensions :: map -> V2
+  positionBlocksMovement :: map -> V2 -> Bool
+
+class TileWalkability tile where
+  walkability :: Getter tile Bool
+
+instance TileWalkability tile => WalkabilityMap (A.Array2D tile) where
+  dimensions (A.Array2D (_, d)) = d
+  positionBlocksMovement a = view walkability . getTile a
 {-}
 
 data Tiles tileIndex tilekind = Tiles

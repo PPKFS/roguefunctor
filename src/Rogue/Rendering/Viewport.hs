@@ -122,10 +122,10 @@ borderViewport c BTS{..} = do
   withV2 (bottomRight rect - V2 1 1) f br
   withV2 (topRight rect - V2 1 0) f tr
   withV2 (bottomLeft rect - V2 0 1) f bl
-  forM_ [view _1 (topLeft rect) + 1 .. view _1 (topRight rect) - 2 ] $ \x -> do
+  forM_ [view _1 (topLeft rect) .. view _1 (topRight rect) - 2 ] $ \x -> do
     f x (rect ^. #topLeft % _2) t
     f x (rect ^. #bottomRight % _2 - 1) b
-  forM_ [view _2 (topLeft rect) + 1 .. view _2 (bottomLeft rect) - 2 ] $ \y -> do
+  forM_ [view _2 (topLeft rect) .. view _2 (bottomLeft rect) - 2 ] $ \y -> do
     f (rect ^. #topLeft % _1) y l
     f (rect ^. #bottomRight % _1 - 1) y r
 

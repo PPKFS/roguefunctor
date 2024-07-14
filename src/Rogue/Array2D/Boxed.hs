@@ -3,9 +3,10 @@ module Rogue.Array2D.Boxed where
 import qualified Data.Vector as V
 import Rogue.Prelude
 
-newtype Array2D a = Array2D (V.Vector a, V2)
+newtype Array2D a = Array2D { unArray :: (V.Vector a, V2) }
   deriving stock (Generic)
   deriving newtype (Show, Eq, Ord)
+  deriving stock (Functor)
 
 indexToCoord :: Int -> Int -> V2
 indexToCoord w i = V2 (i `mod` w) (i `div` w)
@@ -21,6 +22,9 @@ coordToIndex w (V2 x y) = y*w + x
 
 (//@) :: Array2D a -> [(V2, a)] -> Array2D a
 (//@) (Array2D (arr, dims@(V2 w _))) l = Array2D (arr V.// map (first $ coordToIndex w) l, dims)
+
+(//) :: Array2D a -> (V2, a) -> Array2D a
+(//) (Array2D (arr, dims@(V2 w _))) l = Array2D (arr V.// [(first $ coordToIndex w) l], dims)
 
 toVector :: Array2D a -> V.Vector a
 toVector (Array2D (a, _)) = a

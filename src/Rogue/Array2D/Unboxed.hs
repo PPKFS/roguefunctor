@@ -21,6 +21,9 @@ coordToIndex w (V2 x y) = y*w + x
 (//@) :: V.Unbox a => Array2D a -> [(V2, a)] -> Array2D a
 (//@) (Array2D (arr, dims@(V2 w _))) l = Array2D (arr V.// map (first $ coordToIndex w) l, dims)
 
+(//) :: V.Unbox a => Array2D a -> (V2, a) -> Array2D a
+(//) (Array2D (arr, dims@(V2 w _))) l = Array2D (arr V.// [(first $ coordToIndex w) l], dims)
+
 toVector :: Array2D a -> V.Vector a
 toVector (Array2D (a, _)) = a
 

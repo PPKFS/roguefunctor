@@ -37,6 +37,8 @@ common common-options
     mono-traversable,
     exceptions,
     vector,
+    astar,
+    hashable,
     relude,
     random
 
@@ -79,6 +81,7 @@ library
     Rogue.Colour
     Rogue.Window
     Rogue.Config
+    Rogue.AStar
     Rogue.Geometry.Rectangle
     Rogue.Array2D.Unboxed
     Rogue.Array2D.Boxed

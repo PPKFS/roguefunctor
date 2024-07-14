@@ -7,12 +7,14 @@ module Rogue.Geometry.V2
   , pattern WithV2
   , dot
   , tupleToV2
+  , squaredDistance
   ) where
 
 import Data.MonoTraversable
 import Relude
 import GHC.Ix (Ix(..))
 import Optics
+import Data.Hashable
 
 data V2 = V2 {-# UNPACK #-} !Int {-# UNPACK #-} !Int
   deriving stock (Eq, Ord, Show, Read, Generic)
@@ -54,6 +56,15 @@ dot (V2 x1 y1) (V2 x2 y2) =
   x1 * x2 + y1 * y2
 {-# INLINE dot #-}
 
+squaredDistance ::
+  V2
+  -> V2
+  -> Int
+squaredDistance (V2 x1 y1) (V2 x2 y2) = (x2-x1)^(2 :: Int) + (y2-y1)^(2 :: Int)
+{-# INLINE squaredDistance #-}
+
+instance Hashable V2 where
+  hash (V2 x y) = hash (x, y)
 instance Num V2 where
 
   V2 x1 y1 + V2 x2 y2 = V2 (x1 + x2) (y1 + y2)
