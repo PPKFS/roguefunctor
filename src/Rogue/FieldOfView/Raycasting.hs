@@ -3,7 +3,7 @@ module Rogue.FieldOfView.Raycasting where
 import Rogue.Prelude
 import qualified Data.Set as S
 import Rogue.Geometry.Line
-import Rogue.FieldOfView.Visibility
+import Rogue.Tilemap
 
 takeWhileInclusive :: (a -> Bool) -> [a] -> [a]
 takeWhileInclusive _ [] = []

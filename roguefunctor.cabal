@@ -32,6 +32,7 @@ common common-options
     haskell-src-meta,
     optics,
     optics-core >= 0.4.0.0,
+    optics-extra,
     unliftio,
     enummapset,
     mono-traversable,

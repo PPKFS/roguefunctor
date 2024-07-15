@@ -13,7 +13,7 @@ bgLayer = 0
 
 -- | a viewport is some rectangular area over some amount of layers
 -- two viewports cannot clash in both layer and area, so each one can be cleared and rendered
--- independently
+-- independently. This does mean a viewport does not hold any specific logic itself
 
 data Viewport layer = Viewport
   { viewport :: Rectangle

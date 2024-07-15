@@ -2,9 +2,12 @@ module Rogue.Array2D.Unboxed where
 import qualified Data.Vector.Unboxed as V
 import Rogue.Prelude
 
-newtype Array2D a = Array2D (V.Vector a, V2)
+newtype Array2D a = Array2D { unArray :: (V.Vector a, V2) }
   deriving stock (Generic)
   deriving newtype (Show, Eq, Ord)
+
+dimensions :: Array2D a -> V2
+dimensions = snd . unArray
 
 indexToCoord :: Int -> Int -> V2
 indexToCoord w i = V2 (i `mod` w) (i `div` w)
@@ -38,3 +41,9 @@ traverseArrayWithCoord (Array2D (arr, V2 w _)) f = V.iforM arr $ \i v -> f (inde
 
 traverseArrayWithCoord_ :: V.Unbox a => Monad m => Array2D a -> (V2 -> a -> m b) -> m ()
 traverseArrayWithCoord_ (Array2D (arr, V2 w _)) f = V.iforM_ arr $ \i v -> f (indexToCoord w i) v
+
+instance V.Unbox a => Ixed (Array2D a) where
+  ix k = atraversal (\v -> maybeToRight v (v !?@ k)) (\v t -> v // (k, t))
+
+type instance IxValue (Array2D a) = a
+type instance Index (Array2D a) = V2
