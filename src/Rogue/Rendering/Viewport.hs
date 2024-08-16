@@ -17,7 +17,8 @@ bgLayer = 0
 
 data Viewport layer = Viewport
   { viewport :: Rectangle
-  , backgroundLayer :: Maybe (layer, Colour)
+  , backgroundLayer :: Maybe Colour
+  , border :: Maybe (BorderTileSet, Colour)
   }
 
 class AsLayer layer where
@@ -32,11 +33,23 @@ withViewport ::
   -> Eff es a
 withViewport = runReader
 
+renderViewport ::
+  IOE :> es
+  => AsLayer l
+  => Enum l
+  => Bounded l
+  => Viewport l
+  -> Eff (Reader (Viewport l) : es) a
+  -> Eff es a
+renderViewport v f = withViewport v $ do
+  clearViewport v
+  whenJust (border v) $ const borderViewport
+  f
+
 clearViewport ::
   forall l es.
   IOE :> es
   => AsLayer l
-  => Eq l
   => Enum l
   => Bounded l
   => Viewport l
@@ -45,13 +58,10 @@ clearViewport v = forM_ (universe @l) $ \dl -> do
   terminalLayer' (toLayer dl)
   -- if this is the global background layer
   when (toLayer dl == bgLayer) $
-    case backgroundLayer v of
-      Nothing -> error "viewport had a background layer but no colour"
-      Just (_, c) -> terminalBkColour c
-  withV2 (rectangleDimensions (viewport v)) $ withV2 (topLeft $ viewport v) terminalClearArea
-  when ((Just dl == (fst <$> backgroundLayer v)) && toLayer dl /= bgLayer) $ do
-    -- TODO: this is where we would want to replace the background layer with just coloured squares
-    pass
+    whenJust (backgroundLayer v) terminalBkColour
+  let V2 tx ty = topLeft (viewport v)
+      V2 bx by = rectangleDimensions (viewport v)
+  terminalClearArea tx ty bx by
 
 withViewportTransform ::
   Reader (Viewport l) :> es
@@ -83,7 +93,9 @@ viewportDrawTile p mbL fg glyph = do
   whenJust mbL $ do
     terminalLayer' . toLayer
   terminalColour fg
-  void $ withViewportTransform p (\x y -> terminalPrintText x y (one glyph))
+  void $ withViewportTransform p (\x y -> do
+    -- print ("original " <> show p <> "transformed " <> show (x, y) <> "for" <> show glyph)
+    terminalPrintText x y (one glyph))
 
 data BorderTileSet = BTS
   { tl :: Char
@@ -110,31 +122,25 @@ unicodeBorders = BTS
 
 borderViewport ::
   IOE :> es
+  => AsLayer l
   => Reader (Viewport l) :> es
-  => Colour
-  -> BorderTileSet
-  -> Eff es ()
-borderViewport c BTS{..} = do
-  (Viewport rect _) <- ask
-  let f x y glyph = terminalPrintText x y (one glyph)
-  terminalColour c
-  withV2 (topLeft rect) f tl
-  withV2 (bottomRight rect - V2 1 1) f br
-  withV2 (topRight rect - V2 1 0) f tr
-  withV2 (bottomLeft rect - V2 0 1) f bl
-  forM_ [view _1 (topLeft rect) .. view _1 (topRight rect) - 2 ] $ \x -> do
-    f x (rect ^. #topLeft % _2) t
-    f x (rect ^. #bottomRight % _2 - 1) b
-  forM_ [view _2 (topLeft rect) .. view _2 (bottomLeft rect) - 2 ] $ \y -> do
-    f (rect ^. #topLeft % _1) y l
-    f (rect ^. #bottomRight % _1 - 1) y r
+  => Eff es ()
+borderViewport = do
+  (Viewport oldRect _ mbBs) <- ask
+  whenJust mbBs $ \(BTS{..}, c) -> do
+    let f v = viewportDrawTile v Nothing c
+    terminalColour c
+    let rect = moveToOrigin oldRect
+    f (V2 0 0) tl
+    f (bottomRight rect - V2 1 1) br
+    f (topRight rect - V2 1 0) tr
+    f (bottomLeft rect - V2 0 1) bl
+    forM_ [view _1 (topLeft rect) + 1 .. view _1 (topRight rect) - 2 ] $ \x -> do
+      f (V2 x (rect ^. #topLeft % _2)) t
+      f (V2 x (rect ^. #bottomRight % _2 - 1)) b
+    forM_ [view _2 (topLeft rect) + 1 .. view _2 (bottomLeft rect) - 2 ] $ \y -> do
+      f (V2 (rect ^. #topLeft % _1) y) l
+      f (V2 (rect ^. #bottomRight % _1 - 1) y) r
 
 data SomeViewport es where
   SomeViewport :: (IOE :> es, AsLayer l, Eq l, Enum l, Bounded l) => Viewport l -> Eff (Reader (Viewport l) : es) () -> SomeViewport es
-
-renderViewport ::
-  SomeViewport es
-  -> Eff es ()
-renderViewport (SomeViewport v f) = withViewport v $ do
-  clearViewport v
-  f

@@ -68,3 +68,8 @@ topRight ::
   Rectangle
   -> V2
 topRight r = V2 (r ^. #bottomRight % _1) (r ^. #topLeft % _2)
+
+moveToOrigin ::
+  Rectangle
+  -> Rectangle
+moveToOrigin r = Rectangle (V2 0 0) (bottomRight r - topLeft r)

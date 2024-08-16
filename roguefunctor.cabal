@@ -86,6 +86,7 @@ library
     Rogue.Geometry.Rectangle
     Rogue.Array2D.Unboxed
     Rogue.Array2D.Boxed
+    Rogue.Array2D.Sparse
     Rogue.Tilemap
     Rogue.FieldOfView.Visibility
     Rogue.FieldOfView.Raycasting
