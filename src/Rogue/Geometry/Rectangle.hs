@@ -73,3 +73,13 @@ moveToOrigin ::
   Rectangle
   -> Rectangle
 moveToOrigin r = Rectangle (V2 0 0) (bottomRight r - topLeft r)
+
+width ::
+  Rectangle
+  -> Int
+width r = (r ^. #bottomRight % _1 - r ^. #topLeft % _1)
+
+height ::
+  Rectangle
+  -> Int
+height r = (r ^. #bottomRight % _2 - r ^. #topLeft % _2)

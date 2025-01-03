@@ -24,6 +24,9 @@ data Viewport layer = Viewport
 class AsLayer layer where
   toLayer :: layer -> Word8
 
+instance AsLayer () where
+  toLayer = const 0
+
 terminalLayer' :: IOE :> es => Word8 -> Eff es ()
 terminalLayer' = terminalLayer . fromIntegral
 
@@ -110,9 +113,10 @@ viewportPrint p mbL fg str = do
   whenJust mbL $ do
     terminalLayer' . toLayer
   terminalColour fg
+  v <- ask
   void $ withViewportTransform p (\x y -> do
     -- print ("original " <> show p <> "transformed " <> show (x, y) <> "for" <> show glyph)
-    terminalPrintText x y str)
+    terminalPrintExtText x y ((width . viewport $ v) - p ^. #x) ((height . viewport $ v) - p ^. #y) Nothing str)
 
 data BorderTileSet = BTS
   { tl :: Char
