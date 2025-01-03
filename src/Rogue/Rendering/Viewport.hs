@@ -97,6 +97,23 @@ viewportDrawTile p mbL fg glyph = do
     -- print ("original " <> show p <> "transformed " <> show (x, y) <> "for" <> show glyph)
     terminalPrintText x y (one glyph))
 
+viewportPrint ::
+  IOE :> es
+  => AsLayer l
+  => Reader (Viewport l) :> es
+  => V2
+  -> Maybe l
+  -> Colour
+  -> Text
+  -> Eff es ()
+viewportPrint p mbL fg str = do
+  whenJust mbL $ do
+    terminalLayer' . toLayer
+  terminalColour fg
+  void $ withViewportTransform p (\x y -> do
+    -- print ("original " <> show p <> "transformed " <> show (x, y) <> "for" <> show glyph)
+    terminalPrintText x y str)
+
 data BorderTileSet = BTS
   { tl :: Char
   , tr :: Char
