@@ -12,7 +12,7 @@ initWindow opts = do
   void $ terminalOpen
   void $ terminalSet opts
 
-withWindow :: MonadMask m => MonadIO m => WindowOptions -> m a -> (a -> m b) -> m c -> m b
+withWindow :: HasCallStack => MonadMask m => MonadIO m => WindowOptions -> m a -> (a -> m b) -> m c -> m b
 withWindow opts initialise loop exit = bracket
   (initWindow opts >> initialise)
   (const $ exit >> terminalClose)

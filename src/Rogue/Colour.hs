@@ -8,7 +8,7 @@ module Rogue.Colour
   , terminalColour
   , toGreyscale
   , desaturate
-
+  , toHex
   ) where
 
 import Rogue.Prelude
@@ -16,6 +16,7 @@ import Data.Bits
 import Data.Ix
 import Data.Ord (clamp)
 import Foreign.C (CUInt(..))
+import Numeric (showHex)
 
 newtype Colour = Colour { toWord32 :: Word32 }
   deriving stock (Generic)
@@ -23,6 +24,8 @@ newtype Colour = Colour { toWord32 :: Word32 }
 
 type Color = Colour
 
+toHex :: Colour -> Text
+toHex = fromString . flip showHex "" . toWord32
 fromARGB :: Word8 -> Word8 -> Word8 -> Word8 -> Colour
 fromARGB a r g b = (fromIntegral a `shiftL` 24) .|. (fromIntegral r `shiftL` 16) .|. (fromIntegral g `shiftL` 8) .|. fromIntegral b
 
