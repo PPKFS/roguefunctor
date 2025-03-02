@@ -46,18 +46,18 @@ rectanglePoints ::
   -> Rectangle
   -> [V2]
 rectanglePoints Horizontal r = do
-  x <- [(r ^. #topLeft % _1) .. (r ^. #bottomRight % _1)]
-  V2 x <$> [(r ^. #topLeft % _2) .. (r ^. #bottomRight % _2)]
+  x <- [(r ^. #topLeft % _1) .. (r ^. #bottomRight % _1 - 1)]
+  V2 x <$> [(r ^. #topLeft % _2) .. (r ^. #bottomRight % _2 - 1)]
 rectanglePoints Vertical r = do
-  y <- [(r ^. #topLeft % _2) .. (r ^. #bottomRight % _2)]
-  (`V2` y) <$> [(r ^. #topLeft % _1) .. (r ^. #bottomRight % _1)]
+  y <- [(r ^. #topLeft % _2) .. (r ^. #bottomRight % _2 - 1)]
+  (`V2` y) <$> [(r ^. #topLeft % _1) .. (r ^. #bottomRight % _1 - 1)]
 
 rectangleEdges ::
   Rectangle
   -> [V2]
 rectangleEdges r = do
-  x <- [(r ^. #topLeft % _1) .. (r ^. #bottomRight % _1)]
-  V2 x <$> [r ^. #topLeft % _2, r ^. #bottomRight % _2]
+  x <- [(r ^. #topLeft % _1) .. (r ^. #bottomRight % _1 - 1)]
+  V2 x <$> [r ^. #topLeft % _2, r ^. #bottomRight % _2 - 1]
 
 bottomLeft ::
   Rectangle

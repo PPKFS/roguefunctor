@@ -19,7 +19,13 @@ data Viewport layer = Viewport
   { viewport :: Rectangle
   , backgroundLayer :: Maybe Colour
   , border :: Maybe (BorderTileSet, Colour)
-  }
+  } deriving stock (Generic, Eq, Ord, Show)
+
+hasBorder :: Viewport l -> Bool
+hasBorder = isJust . border
+
+hasBackground :: Viewport l -> Bool
+hasBackground = isJust . backgroundLayer
 
 class AsLayer layer where
   toLayer :: layer -> Word8
@@ -46,6 +52,7 @@ renderViewport ::
   -> Eff es a
 renderViewport v f = withViewport v $ do
   clearViewport v
+  withViewportTransform (V2 0 0) $ \tx ty -> terminalCrop tx ty (v ^. #viewport % to width) (v ^. #viewport % to height)
   whenJust (border v) $ const borderViewport
   f
 
@@ -57,10 +64,10 @@ clearViewport ::
   => Bounded l
   => Viewport l
   -> Eff es ()
-clearViewport v = forM_ (universe @l) $ \dl -> do
-  terminalLayer' (toLayer dl)
+clearViewport v = forM_ ((if hasBackground v then (bgLayer:) else id) $ map toLayer $ universe @l) $ \dl -> do
+  terminalLayer' dl
   -- if this is the global background layer
-  when (toLayer dl == bgLayer) $
+  when (dl == bgLayer) $
     whenJust (backgroundLayer v) terminalBkColour
   let V2 tx ty = topLeft (viewport v)
       V2 bx by = rectangleDimensions (viewport v)
@@ -101,6 +108,7 @@ viewportDrawTile p mbL fg glyph = do
     terminalPrintText x y (one glyph))
 
 viewportPrint ::
+  forall l es.
   IOE :> es
   => AsLayer l
   => Reader (Viewport l) :> es
@@ -115,7 +123,6 @@ viewportPrint p mbL fg str = do
   terminalColour fg
   v <- ask
   void $ withViewportTransform p (\x y -> do
-    -- print ("original " <> show p <> "transformed " <> show (x, y) <> "for" <> show glyph)
     terminalPrintExtText x y ((width . viewport $ v) - p ^. #x) ((height . viewport $ v) - p ^. #y) Nothing str)
 
 data BorderTileSet = BTS
@@ -127,7 +134,7 @@ data BorderTileSet = BTS
   , r :: Char
   , t :: Char
   , b :: Char
-  }
+  } deriving stock (Generic, Eq, Ord, Show)
 
 unicodeBorders :: BorderTileSet
 unicodeBorders = BTS

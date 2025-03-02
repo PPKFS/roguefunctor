@@ -31,17 +31,12 @@ common common-options
     haskell-src-exts,
     haskell-src-meta,
     optics,
-    optics-core >= 0.4.0.0,
-    optics-extra,
-    unliftio,
-    enummapset,
     mono-traversable,
     exceptions,
     vector,
     astar,
     hashable,
     relude,
-    random
 
   ghc-options:
     -Wall -Wcompat -Widentities -Wredundant-constraints

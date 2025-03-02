@@ -26,6 +26,7 @@ type Color = Colour
 
 toHex :: Colour -> Text
 toHex = fromString . flip showHex "" . toWord32
+
 fromARGB :: Word8 -> Word8 -> Word8 -> Word8 -> Colour
 fromARGB a r g b = (fromIntegral a `shiftL` 24) .|. (fromIntegral r `shiftL` 16) .|. (fromIntegral g `shiftL` 8) .|. fromIntegral b
 
