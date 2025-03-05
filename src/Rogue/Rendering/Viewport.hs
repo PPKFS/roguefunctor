@@ -27,7 +27,7 @@ hasBorder = isJust . border
 hasBackground :: Viewport l -> Bool
 hasBackground = isJust . backgroundLayer
 
-class AsLayer layer where
+class (Enum layer, Bounded layer) => AsLayer layer where
   toLayer :: layer -> Word8
 
 instance AsLayer () where
@@ -125,7 +125,7 @@ viewportPrint p mbL fg str = do
   void $ withViewportTransform p (\x y -> do
     terminalPrintExtText x y ((width . viewport $ v) - p ^. #x) ((height . viewport $ v) - p ^. #y) Nothing str)
 
-data BorderTileSet = BTS
+data BorderTileSet = BorderTileSet
   { tl :: Char
   , tr :: Char
   , bl :: Char
@@ -137,7 +137,7 @@ data BorderTileSet = BTS
   } deriving stock (Generic, Eq, Ord, Show)
 
 unicodeBorders :: BorderTileSet
-unicodeBorders = BTS
+unicodeBorders = BorderTileSet
   { tl = '╔'
   , tr = '╗'
   , bl = '╚'
@@ -155,7 +155,7 @@ borderViewport ::
   => Eff es ()
 borderViewport = do
   (Viewport oldRect _ mbBs) <- ask
-  whenJust mbBs $ \(BTS{..}, c) -> do
+  whenJust mbBs $ \(BorderTileSet{..}, c) -> do
     let f v = viewportDrawTile v Nothing c
     terminalColour c
     let rect = moveToOrigin oldRect

@@ -15,9 +15,16 @@ import Relude
 import GHC.Ix (Ix(..))
 import Optics
 import Data.Hashable
+import Data.Aeson
+import qualified Data.Vector as V
 
 data V2 = V2 {-# UNPACK #-} !Int {-# UNPACK #-} !Int
   deriving stock (Eq, Ord, Show, Read, Generic)
+
+instance FromJSON V2 where
+  parseJSON = withArray "V2" $ \v -> case (toList $ V.take 2 v) of
+    [x, y] -> V2 <$> parseJSON x <*> parseJSON y
+    _ -> error "invalid V2 fromJSON"
 
 withV2 ::
   V2

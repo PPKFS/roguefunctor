@@ -2,11 +2,18 @@ module Rogue.Geometry.Rectangle where
 
 import Rogue.Geometry.V2
 import Rogue.Prelude
+import Data.Aeson
 
 data Rectangle = Rectangle
   { topLeft :: V2
   , bottomRight :: V2
   } deriving stock (Show, Eq, Ord, Generic)
+    deriving anyclass (FromJSON)
+
+area ::
+  Rectangle
+  -> Int
+area r = let (V2 x y) = rectangleDimensions r in x * y
 
 rectangleDimensions ::
   Rectangle
@@ -55,9 +62,14 @@ rectanglePoints Vertical r = do
 rectangleEdges ::
   Rectangle
   -> [V2]
-rectangleEdges r = do
-  x <- [(r ^. #topLeft % _1) .. (r ^. #bottomRight % _1 - 1)]
-  V2 x <$> [r ^. #topLeft % _2, r ^. #bottomRight % _2 - 1]
+rectangleEdges r = topEdges <> [V2 0 0] <> sides
+  where
+    topEdges = do
+      x <- [(r ^. #topLeft % _1) .. (r ^. #bottomRight % _1 - 1)]
+      V2 x <$> [r ^. #topLeft % _2, r ^. #bottomRight % _2 - 1]
+    sides = do
+      y <- [(r ^. #topLeft % _2 + 1) .. (r ^. #bottomRight % _2 - 2)]
+      [V2 (r ^. #topLeft % _1) y, V2 (r ^. #bottomRight % _1 - 1) y]
 
 bottomLeft ::
   Rectangle
@@ -83,3 +95,9 @@ height ::
   Rectangle
   -> Int
 height r = (r ^. #bottomRight % _2 - r ^. #topLeft % _2)
+
+translate ::
+  V2
+  -> Rectangle
+  -> Rectangle
+translate offset (Rectangle tl br) = Rectangle (tl + offset) (br + offset)
