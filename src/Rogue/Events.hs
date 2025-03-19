@@ -8,9 +8,9 @@ import Rogue.Prelude
 data BlockingMode = Blocking | NotBlocking
   deriving stock (Eq, Ord, Generic, Show, Bounded, Enum)
 
-handleEvents :: MonadIO m => BlockingMode -> (Event -> m a) -> m [a]
+handleEvents :: MonadIO m => BlockingMode -> (Keycode -> m a) -> m [a]
 handleEvents bm f = do
-  let allEvents :: MonadIO m => m [Event]
+  let allEvents :: MonadIO m => m [Keycode]
       allEvents = go True
         where
           go isEmptySoFar = do

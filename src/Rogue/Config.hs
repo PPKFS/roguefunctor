@@ -2,7 +2,7 @@
 module Rogue.Config
   ( BearLibConfigString(..)
   , WindowOptions(..)
-  , terminalSet
+  , terminalSetOptions
   , defaultWindowOptions
   ) where
 
@@ -48,8 +48,8 @@ instance BearLibConfigString ConfigOption where
 toByteString :: BearLibConfigString c => c -> BS.ByteString
 toByteString = BS.toStrict . LT.encodeUtf8 . LT.toLazyText . toConfigString
 
-terminalSet :: MonadIO m => BearLibConfigString c => c -> m Bool
-terminalSet = terminalSetText . TL.toStrict . LT.toLazyText . toConfigString
+terminalSetOptions :: MonadIO m => BearLibConfigString c => c -> m Bool
+terminalSetOptions = terminalSet . TL.toStrict . LT.toLazyText . toConfigString
 
 data WindowOptions = WindowOptions
   { size :: Maybe V2

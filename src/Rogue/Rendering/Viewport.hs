@@ -105,7 +105,7 @@ viewportDrawTile p mbL fg glyph = do
   terminalColour fg
   void $ withViewportTransform p (\x y -> do
     -- print ("original " <> show p <> "transformed " <> show (x, y) <> "for" <> show glyph)
-    terminalPrintText x y (one glyph))
+    terminalPrint x y (one glyph))
 
 viewportPrint ::
   forall l es.
@@ -123,7 +123,7 @@ viewportPrint p mbL fg str = do
   terminalColour fg
   v <- ask
   void $ withViewportTransform p (\x y -> do
-    terminalPrintExtText x y ((width . viewport $ v) - p ^. #x) ((height . viewport $ v) - p ^. #y) Nothing str)
+    terminalPrintExt x y ((width . viewport $ v) - p ^. #x) ((height . viewport $ v) - p ^. #y) Nothing str)
 
 data BorderTileSet = BorderTileSet
   { tl :: Char

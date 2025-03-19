@@ -15,7 +15,6 @@ import Rogue.Prelude
 import Data.Bits
 import Data.Ix
 import Data.Ord (clamp)
-import Foreign.C (CUInt(..))
 import Numeric (showHex)
 
 newtype Colour = Colour { toWord32 :: Word32 }
@@ -40,13 +39,13 @@ fromARGBFloat a r g b = fromARGB (clampScale a) (clampScale r) (clampScale g) (c
     clampScale = round . (/255) . clamp (0, 1)
 
 terminalColour :: MonadIO m => Colour -> m ()
-terminalColour = terminalColorUInt . CUInt . toWord32
+terminalColour = terminalColorUInt . fromIntegral . toWord32
 
 terminalColor :: MonadIO m => Color -> m ()
 terminalColor = terminalColour
 
 terminalBkColour :: MonadIO m => Colour -> m ()
-terminalBkColour = terminalBkColorUInt . CUInt . toWord32
+terminalBkColour = terminalBkColorUInt . fromIntegral . toWord32
 
 terminalBkColor :: MonadIO m => Color -> m ()
 terminalBkColor = terminalColour

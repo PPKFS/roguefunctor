@@ -11,7 +11,7 @@ module Rogue.Prelude
 
 import Relude hiding (State, get, put, modify, gets, state, modify', runState, evalState, execState)
 import Optics hiding (uncons, zoom, gviews, zoomMaybe, use, gview, preuse, modifying', modifying, assign', assign)
-import BearLibTerminal
+import BearLibTerminal hiding (Dimensions(..))
 import Data.Text.Display
 import Effectful
 import Relude.Extra.Bifunctor

@@ -10,7 +10,7 @@ import Control.Monad.Catch
 initWindow :: MonadIO m => WindowOptions -> m ()
 initWindow opts = do
   void $ terminalOpen
-  void $ terminalSet opts
+  void $ terminalSetOptions opts
 
 withWindow :: HasCallStack => MonadMask m => MonadIO m => WindowOptions -> m a -> (a -> m b) -> m c -> m b
 withWindow opts initialise loop exit = bracket
