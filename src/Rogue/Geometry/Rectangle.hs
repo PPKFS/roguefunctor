@@ -45,11 +45,11 @@ bottomEdge ::
   -> Int
 bottomEdge = view _2 . bottomRight
 
-data ScanDirection = Horizontal | Vertical
+data Orientation = Horizontal | Vertical
   deriving stock (Eq, Ord, Show, Read, Generic, Enum, Bounded)
 
 rectanglePoints ::
-  ScanDirection
+  Orientation
   -> Rectangle
   -> [V2]
 rectanglePoints Horizontal r = do
@@ -89,12 +89,12 @@ moveToOrigin r = Rectangle (V2 0 0) (bottomRight r - topLeft r)
 width ::
   Rectangle
   -> Int
-width r = (r ^. #bottomRight % _1 - r ^. #topLeft % _1)
+width r = r ^. #bottomRight % _1 - r ^. #topLeft % _1
 
 height ::
   Rectangle
   -> Int
-height r = (r ^. #bottomRight % _2 - r ^. #topLeft % _2)
+height r = r ^. #bottomRight % _2 - r ^. #topLeft % _2
 
 translate ::
   V2

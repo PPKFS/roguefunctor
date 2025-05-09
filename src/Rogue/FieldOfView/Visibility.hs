@@ -5,6 +5,7 @@ import Rogue.Property.TH
 import Rogue.Property.Has
 import Rogue.ObjectQuery
 import qualified Data.Set as S
+import Effectful
 
 data Viewshed = Viewshed
   { visibleTiles :: S.Set V2

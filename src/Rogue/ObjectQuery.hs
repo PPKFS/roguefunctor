@@ -3,6 +3,7 @@ module Rogue.ObjectQuery where
 import Rogue.Prelude
 import Effectful.TH
 import Rogue.Property.Has
+import Effectful
 
 
 class HasID n where

@@ -5,6 +5,7 @@ import Rogue.Prelude hiding (Reader, runReader, ask)
 import Effectful.Reader.Static
 import Rogue.Colour
 import Data.Ix (Ix(inRange))
+import Effectful
 
 type Layer = Word8
 

@@ -44,6 +44,9 @@ traverseArrayWithCoord (Array2D (arr, V2 w _)) f = V.iforM arr $ \i v -> f (inde
 traverseArrayWithCoord_ :: Monad m => Array2D a -> (V2 -> a -> m b) -> m ()
 traverseArrayWithCoord_ (Array2D (arr, V2 w _)) f = V.iforM_ arr $ \i v -> f (indexToCoord w i) v
 
+replicateArray :: a -> V2 -> Array2D a
+replicateArray a d@(V2 x y) = Array2D (V.replicate (x*y) a, d)
+
 instance Ixed (Array2D a) where
   ix k = atraversal (\v -> maybeToRight v (v !?@ k)) (\v t -> v // (k, t))
 

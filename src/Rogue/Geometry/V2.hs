@@ -8,6 +8,9 @@ module Rogue.Geometry.V2
   , dot
   , tupleToV2
   , squaredDistance
+  , modifyX
+  , modifyY
+  , v2AsArea
   ) where
 
 import Data.MonoTraversable
@@ -17,14 +20,26 @@ import Optics
 import Data.Hashable
 import Data.Aeson
 import qualified Data.Vector as V
+import System.Random.Stateful
 
 data V2 = V2 {-# UNPACK #-} !Int {-# UNPACK #-} !Int
   deriving stock (Eq, Ord, Show, Read, Generic)
 
 instance FromJSON V2 where
-  parseJSON = withArray "V2" $ \v -> case (toList $ V.take 2 v) of
+  parseJSON = withArray "V2" $ \v -> case toList $ V.take 2 v of
     [x, y] -> V2 <$> parseJSON x <*> parseJSON y
     _ -> error "invalid V2 fromJSON"
+
+instance Uniform V2 where
+  uniformM g = V2 <$> uniformM g <*> uniformM g
+  {-# INLINE uniformM #-}
+
+instance UniformRange V2 where
+  uniformRM :: StatefulGen g m => (V2, V2) -> g -> m V2
+  uniformRM (V2 x1 y1, V2 x2 y2) g = do
+    x <- uniformRM (x1, x2) g
+    y <- uniformRM (y1, y2) g
+    return (V2 x y)
 
 withV2 ::
   V2
@@ -125,3 +140,12 @@ instance LabelOptic "x" A_Lens V2 V2 Int Int where
 
 instance LabelOptic "y" A_Lens V2 V2 Int Int where
   labelOptic = _2
+
+modifyX :: (Int -> Int) -> V2 -> V2
+modifyX f (V2 x y) = V2 (f x) y
+
+modifyY :: (Int -> Int) -> V2 -> V2
+modifyY f (V2 x y) = V2 x (f y)
+
+v2AsArea :: V2 -> Int
+v2AsArea (V2 x y) = x * y
