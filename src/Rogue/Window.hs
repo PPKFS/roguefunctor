@@ -14,12 +14,12 @@ initWindow opts = do
   void $ terminalOpen
   void $ terminalSetOptions opts
 
-withWindow :: HasCallStack => MonadMask m => MonadIO m => WindowOptions -> StateT RogueState m a -> (a -> StateT RogueState m b) -> StateT RogueState m c -> m b
+withWindow :: HasCallStack => MonadMask m => MonadIO m => WindowOptions -> RogueT m a -> (a -> RogueT m b) -> RogueT m c -> m b
 withWindow opts initialise loop exit = bracket
   (do
     initWindow opts
     g <- initStdGen
-    let gen = RogueState $ AtomicGen g
-    runStateT initialise gen)
-  (\(_, rs) -> evalStateT (exit >> terminalClose) rs)
-  (\(a, rs) -> evalStateT (loop a) rs)
+    let gen = RogueState (AtomicGen g) 0
+    runStateT (runRogueT initialise) gen)
+  (\(_, rs) -> evalStateT (runRogueT $ exit >> terminalClose) rs)
+  (\(a, rs) -> evalStateT (runRogueT $ loop a) rs)

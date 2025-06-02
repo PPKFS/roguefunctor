@@ -59,6 +59,9 @@ rectanglePoints Vertical r = do
   y <- [(r ^. #topLeft % _2) .. (r ^. #bottomRight % _2 - 1)]
   (`V2` y) <$> [(r ^. #topLeft % _1) .. (r ^. #bottomRight % _1 - 1)]
 
+rectanglePoints' :: Rectangle -> [V2]
+rectanglePoints' = rectanglePoints Horizontal
+
 rectangleEdges ::
   Rectangle
   -> [V2]

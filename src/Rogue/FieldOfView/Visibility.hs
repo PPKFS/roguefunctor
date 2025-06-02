@@ -1,18 +1,14 @@
 module Rogue.FieldOfView.Visibility where
 import Rogue.Geometry.V2
 import Rogue.Prelude
-import Rogue.Property.TH
-import Rogue.Property.Has
-import Rogue.ObjectQuery
 import qualified Data.Set as S
-import Effectful
 
 data Viewshed = Viewshed
   { visibleTiles :: S.Set V2
   , range :: Int
   } deriving stock (Eq, Ord, Show, Generic)
 
-makeSpecifics ''Viewshed
+-- makeSpecifics ''Viewshed
 
 data OctantPosition = NNE | NE | SE | SSE | SSW | SW | NW | NNW
 

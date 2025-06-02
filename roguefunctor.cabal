@@ -1,6 +1,6 @@
 cabal-version: 3.6
 name:          roguefunctor
-version:       0.0.0.0
+version:       0.0.0.1
 synopsis:      A roguelike toolkit library
 description:   A roguelike toolkit library
 homepage:      https://github.com/PPKFS/roguefunctor
@@ -37,7 +37,11 @@ common common-options
     vector >= 0.13,
     astar,
     hashable,
+    random,
     relude,
+    enummapset,
+    mtl,
+    transformers
 
   ghc-options:
     -Wall -Wcompat -Widentities -Wredundant-constraints
@@ -89,5 +93,12 @@ library
     Rogue.Geometry.Line
     Rogue.Property.Has
     Rogue.Property.TH
-    Rogue.ObjectQuery
     Rogue.Rendering.Viewport
+    Rogue.Rendering.Print
+    Rogue.Monad
+    Rogue.Random
+
+    Rogue.Objects.Store
+    Rogue.Objects.Entity
+    Rogue.Objects.Object
+    Rogue.Objects.Tag
