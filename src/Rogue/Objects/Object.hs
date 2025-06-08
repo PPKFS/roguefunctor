@@ -19,7 +19,6 @@ module Rogue.Objects.Object (
 import Rogue.Prelude
 import Rogue.Objects.Entity
 
-
 -- | See also `Yaifl.Core.Metadata.typeDAG`. An object type is just a string that has some relations to other types.
 -- there is no data or polymorphism connected to a type, so it's very possible to call something a supporter without
 -- having some supporter properties.
@@ -44,7 +43,6 @@ data Object objData objSpecifics = Object
   , modifiedTime :: Timestamp
   , objectData :: objData
   , specifics :: objSpecifics -- ^ A @vanilla@ object has no specific additional information; this is a @Pointed@ constraint.
-
   } deriving stock (Generic)
 
 makeFieldLabelsNoPrefix ''Object

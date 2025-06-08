@@ -64,7 +64,7 @@ defaultWindowOptions :: WindowOptions
 defaultWindowOptions = WindowOptions
   { size = Just $ V2 150 50
   , cellsize = Just Auto
-  , title = Just "Hello Zurihac!!!"
+  , title = Just "Hello!!!"
   , icon = Nothing
   , resizeable = Just False
   , fullscreen = Just False

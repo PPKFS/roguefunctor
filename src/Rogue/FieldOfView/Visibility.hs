@@ -8,6 +8,8 @@ data Viewshed = Viewshed
   , range :: Int
   } deriving stock (Eq, Ord, Show, Generic)
 
+emptyViewshed :: Int -> Viewshed
+emptyViewshed = Viewshed S.empty
 -- makeSpecifics ''Viewshed
 
 data OctantPosition = NNE | NE | SE | SSE | SSW | SW | NW | NNW

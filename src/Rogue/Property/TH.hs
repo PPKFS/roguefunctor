@@ -1,4 +1,5 @@
 module Rogue.Property.TH where
+{-}
 import Rogue.Prelude
 
 import Data.Text (replace)
@@ -58,3 +59,4 @@ makePropertyFunction n sf = do
 
 replaceTH :: Text -> Text -> [Dec]
 replaceTH y x = either (\x' -> [error $ toText x']) id (parseDecsWithMode myDefaultParseMode $ toString $ replace "XSUBHERE" x y)
+-}

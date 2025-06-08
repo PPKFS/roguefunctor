@@ -24,22 +24,26 @@ class TileVisibility tile where
   visibility :: tile -> Bool
 
 instance TileVisibility tile => VisibilityMap (A.Array2D tile) where
-  positionBlocksVisibility a =  visibility . (a A.!@)
+  positionBlocksVisibility a =  not . visibility . (a A.!@)
 
 class Tilemap tilemap tilekind | tilemap -> tilekind where
   getTile :: tilemap -> V2 -> tilekind
-  setTile :: tilemap -> tilekind -> V2 -> tilemap
+  setTile :: tilemap -> V2 -> tilekind -> tilemap
   setTiles :: tilemap -> [(V2, tilekind)] -> tilemap
-  setTiles = foldl' (\tm' (v, k) -> setTile tm' k v)
+  setTiles = foldl' (\tm' (v, k) -> setTile tm' v k)
   {-# MINIMAL getTile, setTile #-}
-
 
 instance VU.Unbox a => Tilemap (AU.Array2D a) a where
   getTile = (AU.!@)
-  setTile a v p = a AU.//@ [(p, v)]
+  setTile a p v = a AU.//@ [(p, v)]
   setTiles = (AU.//@)
 
 instance Tilemap (A.Array2D a) a where
   getTile = (A.!@)
-  setTile a v p = a A.//@ [(p, v)]
+  setTile a p v = a A.//@ [(p, v)]
   setTiles = (A.//@)
+
+class MonadTiles tilekind m where
+  getTileM :: V2 -> m tilekind
+  setTileM :: V2 -> tilekind -> m ()
+  setTilesM :: [(V2, tilekind)] -> m ()
