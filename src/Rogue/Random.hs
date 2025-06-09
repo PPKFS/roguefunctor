@@ -3,12 +3,15 @@ module Rogue.Random
   , random
   , randomV2
   , coinFlip
+  , choose
+  , randomEnum
   ) where
 
 import Rogue.Prelude
 import Rogue.Monad
 import System.Random.Stateful hiding (random, uniform)
 import qualified System.Random as R
+import GHC.List ((!!))
 
 uniform :: (UniformRange a, MonadRogue m) => a -> a -> m a
 uniform a b = do
@@ -29,6 +32,14 @@ random = do
   let (x, y) = R.random (rng rs)
   setRogueState (rs & #rng .~ y)
   return x
+
+randomEnum :: forall a m. (Enum a, Bounded a, MonadRogue m) => m a
+randomEnum = toEnum <$> uniform (fromEnum @a minBound) (fromEnum @a maxBound)
+
+choose :: MonadRogue m => [a] -> m a
+choose l = do
+  i <- uniform 0 (length l - 1)
+  return $ l !! i
 
 coinFlip :: MonadRogue m => m Bool
 coinFlip = random

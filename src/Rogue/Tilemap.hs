@@ -7,15 +7,17 @@ import Rogue.Prelude
 
 class WalkabilityMap map where
   positionBlocksMovement :: map -> V2 -> Bool
+  default positionBlocksMovement :: map -> V2 -> Bool
+  positionBlocksMovement m = not . positionAllowsMovement m
+  positionAllowsMovement :: map -> V2 -> Bool
+  default positionAllowsMovement :: map -> V2 -> Bool
+  positionAllowsMovement m = not . positionBlocksMovement m
 
 class TileWalkability tile where
   walkability :: tile -> Bool
 
 instance TileWalkability tile => WalkabilityMap (A.Array2D tile) where
   positionBlocksMovement a = walkability . (a A.!@)
-
-positionAllowsMovement :: WalkabilityMap map => map -> V2 -> Bool
-positionAllowsMovement m = not . positionBlocksMovement m
 
 class VisibilityMap map where
   positionBlocksVisibility :: map -> V2 -> Bool
