@@ -1,5 +1,6 @@
 module Rogue.Events
   ( handleEvents
+  , handleEvents_
   , BlockingMode(..)
   , InputEvent(..)
   , makeEvent
@@ -27,6 +28,9 @@ handleEvents bm f = do
               pure []
   ev <- allEvents
   mapM f ev
+
+handleEvents_ :: MonadIO m => BlockingMode -> (Keycode -> m a) -> m ()
+handleEvents_ = (void .) . handleEvents
 
 data InputEvent =
   PressedKey Keycode
