@@ -5,10 +5,11 @@ import Data.Bits
 import Data.Ix
 import Data.Ord (clamp)
 import Numeric (showHex)
+import Foreign (Storable)
 
 newtype Colour = Colour { toWord32 :: Word32 }
   deriving stock (Generic)
-  deriving newtype (Show, Read, Eq, Ord, Bits, FiniteBits, Num, Enum, Bounded, Ix, Real, Integral)
+  deriving newtype (Show, Read, Eq, Ord, Bits, FiniteBits, Num, Enum, Bounded, Ix, Real, Integral, Storable)
 
 type Color = Colour
 
@@ -25,7 +26,7 @@ fromARGBFloat :: RealFrac a => RealFrac r => RealFrac g => RealFrac b => a -> r 
 fromARGBFloat a r g b = fromARGB (clampScale a) (clampScale r) (clampScale g) (clampScale b)
   where
     clampScale :: RealFrac x => x -> Word8
-    clampScale = round . (/255) . clamp (0, 1)
+    clampScale = round . (*255) . clamp (0, 1)
 
 terminalColour :: MonadIO m => Colour -> m ()
 terminalColour = terminalColorUInt . fromIntegral . toWord32
@@ -49,14 +50,17 @@ toGreyscale (Colour c) =
   in
     fromARGB (fromIntegral a) grey' grey' grey'
 
-desaturate :: Color -> Color
-desaturate (Colour c) =
+desaturateBy :: Double -> Color -> Color
+desaturateBy a' (Colour c) =
   let b = fromIntegral (c .&. 0xFF)
       g = fromIntegral (c `shiftR` 8 .&. 0xFF)
       r = fromIntegral (c `shiftR` 16 .&. 0xFF)
       a = (c `shiftR` 24 .&. 0xFF)
   in
-    fromARGB (fromIntegral a) (r `div` 2) (g `div` 2) (b `div` 2)
+    fromARGB (fromIntegral a) (round $ r / a') (round $ g / a') (round $ b / a')
+
+desaturate :: Colour -> Colour
+desaturate = desaturateBy 2
 
 -- https://www.w3schools.com/tags/ref_colornames.asp
 aliceBlue :: Colour

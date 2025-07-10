@@ -11,7 +11,7 @@ maintainer:    Avery <thecommunistduck@hotmail.co.uk>
 copyright:     2024 Avery
 category:      Game Development
 build-type:    Simple
-tested-with:   GHC == 9.8.2
+tested-with:   GHC ==9.8.2
 
 source-repository head
   type:     git
@@ -19,27 +19,25 @@ source-repository head
 
 common common-options
   build-depends:
-    base >= 4.17.2 && < 5,
-    aeson,
-    containers >= 0.6.7 && < 1.7,
-    template-haskell >= 2.19.0 && < 3.20,
-    effectful-core >= 2.3.0 && < 3.4,
-    effectful-plugin >= 1.1.0 && < 2.2,
-    effectful-th >= 1.0.0 && < 2.1,
-    text >= 2.0.2 && < 3.1,
-    text-display >= 0.0.5 && < 1.0,
-    bearlibterminal,
-    optics,
-    mono-traversable,
-    exceptions,
-    vector >= 0.13,
-    astar,
-    hashable,
-    random,
-    relude,
-    enummapset,
-    mtl,
-    transformers
+    , aeson
+    , astar
+    , base              >=4.17.2 && <5
+    , bearlibterminal
+    , containers        >=0.6.7  && <1.7
+    , enummapset
+    , exceptions
+    , hashable
+    , mono-traversable
+    , mtl
+    , optics
+    , random
+    , relude
+    , template-haskell  >=2.19.0 && <3.20
+    , text              >=2.0.2  && <3.1
+    , text-display      >=0.0.5  && <1.0
+    , transformers
+    , vector            >=0.13
+    , voronoi
 
   ghc-options:
     -Wall -Wcompat -Widentities -Wredundant-constraints
@@ -47,7 +45,7 @@ common common-options
     -Wno-unused-top-binds -Wmissing-deriving-strategies -O2
     -flate-specialise -fspecialise-aggressively
     -fprint-potential-instances -fno-warn-unused-do-bind -haddock
-    -fwrite-ide-info -fplugin=Effectful.Plugin -Wunused-packages
+    -fwrite-ide-info -Wunused-packages
 
   default-language:   GHC2021
   default-extensions:
@@ -71,32 +69,37 @@ common common-options
     ViewPatterns
 
 library
-  import: common-options
+  import:          common-options
   hs-source-dirs:  src
   exposed-modules:
-    Rogue.Prelude
-    Rogue.Geometry.V2
-    Rogue.Events
-    Rogue.Colour
-    Rogue.Window
-    Rogue.Config
-    Rogue.AStar
-    Rogue.Geometry.Rectangle
-    Rogue.Array2D.Unboxed
     Rogue.Array2D.Boxed
     Rogue.Array2D.Sparse
-    Rogue.Tilemap
-    Rogue.FieldOfView.Visibility
+    Rogue.Array2D.Unboxed
+    Rogue.AStar
+    Rogue.Colour
+    Rogue.Config
+    Rogue.Events
     Rogue.FieldOfView.Raycasting
+    Rogue.FieldOfView.Visibility
     Rogue.Geometry.Line
-    Rogue.Property.Has
-    Rogue.Property.TH
-    Rogue.Rendering.Viewport
-    Rogue.Rendering.Print
+    Rogue.Geometry.Rectangle
+    Rogue.Geometry.V2
+    Rogue.Geometry.V2D
     Rogue.Monad
-    Rogue.Random
-
-    Rogue.Objects.Store
     Rogue.Objects.Entity
     Rogue.Objects.Object
+    Rogue.Objects.Store
     Rogue.Objects.Tag
+    Rogue.Prelude
+    Rogue.Random
+    Rogue.Rendering.Print
+    Rogue.Tilemap
+    Rogue.Window
+
+    -- currently incomplete
+    -- Rogue.Array2D.Mutable
+    -- Rogue.FieldOfView.Milazzo
+    -- Rogue.FieldOfView.SymmectricShadowcasting
+    -- Rogue.Property.TH
+    -- Rogue.Property.Has
+    -- Rogue.Rendering.Viewport

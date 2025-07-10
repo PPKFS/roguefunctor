@@ -7,6 +7,7 @@ module Rogue.Prelude
   , module Relude.Extra.Bifunctor
   , module Relude.Extra.Tuple
   , module Rogue.Geometry.V2
+  , takeWhileInclusive
   ) where
 
 import Relude
@@ -17,3 +18,7 @@ import Data.Text.Display
 import Relude.Extra.Bifunctor
 import Relude.Extra.Tuple
 import Rogue.Geometry.V2
+
+takeWhileInclusive :: (a -> Bool) -> [a] -> [a]
+takeWhileInclusive _ [] = []
+takeWhileInclusive p (x:xs) = x : if p x then takeWhileInclusive p xs else []

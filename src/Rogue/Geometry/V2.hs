@@ -1,15 +1,25 @@
+{-|
+Module      : Rogue.Geometry.V2
+Description : 2D vector types with integer coordinates.
+License     : MIT
+Stability   : experimental
+Portability : POSIX
+
+A 2D vector type (i.e. isomorphic to (a, a)) that uses `Int` as the underlying component.
+-}
+
 {-# LANGUAGE PatternSynonyms #-}
 
 module Rogue.Geometry.V2
   ( V2(..)
-  , withV2
-  , convertV2
-  , pattern WithV2
-  , dot
-  , tupleToV2
-  , squaredDistance
   , modifyX
   , modifyY
+  , withV2
+  , tupleToV2
+  , v2ToTuple
+  , pattern WithV2
+  , dot
+  , squaredDistance
   , v2AsArea
   ) where
 
@@ -48,15 +58,6 @@ withV2 ::
 withV2 (V2 x y) f = f x y
 {-# INLINE withV2 #-}
 
-convertV2 ::
-  Coercible v V2
-  => (Int -> a)
-  -> (a -> a -> r)
-  -> v
-  -> r
-convertV2 f c v = withV2 (coerce v) $ \x y -> c (f x) (f y)
-{-# INLINE convertV2 #-}
-
 pattern WithV2 ::
   Int
   -> Int
@@ -69,6 +70,12 @@ tupleToV2 ::
   -> V2
 tupleToV2 = uncurry V2
 {-# INLINE tupleToV2 #-}
+
+v2ToTuple ::
+  V2
+  -> (Int, Int)  
+v2ToTuple (V2 x y) = (x, y)
+{-# INLINE v2ToTuple #-}
 
 dot ::
   V2

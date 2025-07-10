@@ -48,3 +48,22 @@ compute tm origin range = flip map (universe @Quadrant) $ \q ->
           doNextRow = if not ((isWall <$> previousTile) == Just True) && (isWall pos) then scan
       in error ""
 -}
+
+-- makeSpecifics ''Viewshed
+{-
+data OctantPosition = NNE | NE | SE | SSE | SSW | SW | NW | NNW
+
+type ShadowLine = [V2]
+
+-- this assumes y goes downwards
+transformOctant :: Int -> Int -> OctantPosition -> V2
+transformOctant row col = \case
+  NNE -> V2 col row
+  NE -> V2 row (-col)
+  SE -> V2 row col
+  SSE -> V2 col row
+  SSW -> V2 (-col) row
+  SW -> V2(-row) col
+  NW -> V2 (-row) (-col)
+  NNW -> V2 (-col) (-row)
+-}

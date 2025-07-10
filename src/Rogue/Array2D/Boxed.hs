@@ -52,3 +52,9 @@ instance Ixed (Array2D a) where
 
 type instance IxValue (Array2D a) = a
 type instance Index (Array2D a) = V2
+
+unfoldrExact :: (V2 -> a) -> V2 ->  Array2D a
+unfoldrExact f m@(V2 mx my) = Array2D (V.unfoldrExactN (mx * my) (\x -> (f (indexToCoord mx x), x+1)) 0, m)
+
+imap :: (V2 -> a -> b) -> Array2D a -> Array2D b
+imap f (Array2D (arr, dims@(V2 w _))) = Array2D (V.imap (f . indexToCoord w) arr, dims)

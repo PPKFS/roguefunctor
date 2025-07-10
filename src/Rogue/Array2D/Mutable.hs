@@ -1,4 +1,4 @@
-module Rogue.Array2D.Unboxed where
+module Rogue.Array2D.Mutable where
 import qualified Data.Vector.Mutable as V
 import Rogue.Prelude
 
@@ -40,9 +40,6 @@ traverseArrayWithCoord (Array2D (arr, V2 w _)) f = V.iforM arr $ \i v -> f (inde
 
 traverseArrayWithCoord_ :: Monad m => Array2D a -> (V2 -> a -> m b) -> m ()
 traverseArrayWithCoord_ (Array2D (arr, V2 w _)) f = V.iforM_ arr $ \i v -> f (indexToCoord w i) v
-
-instance Ixed (Array2D a) where
-  ix k = atraversal (\v -> maybeToRight v (v !?@ k)) (\v t -> v // (k, t))
 
 type instance IxValue (Array2D a) = a
 type instance Index (Array2D a) = V2

@@ -5,6 +5,7 @@ module Rogue.Random
   , coinFlip
   , choose
   , randomEnum
+  , uniform
   ) where
 
 import Rogue.Prelude
